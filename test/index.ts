@@ -1,3 +1,4 @@
+import { isCommunityResourcable } from "@ethersproject/providers";
 import { expect } from "chai";
 import { sign } from "crypto";
 import { ethers } from "hardhat";
@@ -28,50 +29,35 @@ describe("Greeter", function () {
     const sf = await StoreFactory.deploy(storeMaster.address);
     await sf.deployed();
 
+    let eventFilter = sf.filters.cloneCreated()
+
     const impl = await sf.impl();
     console.log(`implementation address: ${impl}`);
-
-    // sf.
 
     const salt = ethers.utils.formatBytes32String('1');
     const cloneTx = await sf.cloneStore(salt);
     await cloneTx.wait();
 
-    const cloneAddress = await sf.getCloneAddress(salt);
-    console.log("cloneAddress:", cloneAddress);
+    let events = await sf.queryFilter(eventFilter);
+    console.log("first  clone creation event: ", events, "\n");
 
-
-    // console.log(sf)
-    // sf.cloneCreated({},)
-    let eventFilter = sf.filters.cloneCreated()
-    let events = await sf.queryFilter(eventFilter)
-    console.log(events)
-    // const emitedEvent = await sf.cloneA
-    // console.log(emitedEvent);
+    const store = Store.attach(events[0].args.cloned);
+    await store.setValue("message");
 
 
 
+    console.log("\n\n\n\n");
 
-    const store = Store.attach(cloneAddress);
+    // second clone creation
+    const secondCloneSalt = ethers.utils.formatBytes32String('2');
+    const cloneTx2 = await sf.cloneStore(secondCloneSalt);
+    await cloneTx2.wait();
 
-    await store.setValue("sex");
-    // console.log("value from store: ", val);
+    let eventsFromSecondClone = await sf.queryFilter(eventFilter);
+    console.log("second clone creation event: ", eventsFromSecondClone, "\n");
 
-
-
-
-    // let accs = await ethers.getSigners();
-
-    // const clone1 = new ethers.Contract(
-    //   cloneAddress,
-    //   [
-    //     'function setValue(string memory newValue) external'
-    //   ],
-    //   accs[1]
-    // );
-
-    // await clone1.setValue("sex");
-
+    const secondStoreClone = Store.attach(eventsFromSecondClone[1].args.cloned);
+    await secondStoreClone.setValue("message");
   });
 
 });

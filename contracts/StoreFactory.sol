@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/proxy/Clones.sol";
 contract StoreFactory {
     address public owner;
     address public impl;
-    event cloneCreated(address indexed cloned, string msg);
+    event cloneCreated(address indexed cloned);
 
     modifier OnlyOwner() {
         require(msg.sender == owner, "Only the owner can clone a store");
@@ -20,7 +20,7 @@ contract StoreFactory {
     function cloneStore(bytes32 _salt) public OnlyOwner {
         address ad = Clones.cloneDeterministic(impl, _salt);
         address adEv = Clones.predictDeterministicAddress(impl, _salt);
-        emit cloneCreated(adEv, "sex");
+        emit cloneCreated(adEv);
     }
 
     function getCloneAddress(bytes32 _salt) public view returns (address) {
