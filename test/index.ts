@@ -6,19 +6,6 @@ import { emit } from "process";
 
 describe("Greeter", function () {
 
-
-
-  // it("Should deploy master Pair contract", async function () {
-  //   pairMaster = await (await ethers.getContractFactory("Pair")).deploy();
-  //   pairStandaloneGas = await getGas(pairMaster.deployTransaction)
-  //   expect(pairMaster.address).to.exist;
-  // });
-
-  // it("Should deploy PairFactory contract", async function () {
-  //   pairFactory = await (await ethers.getContractFactory("PairFactory")).deploy(pairMaster.address);
-  //   expect(pairFactory.address).to.exist;
-  // });
-
   it("Should return the new greeting once it's changed", async function () {
     const Store = await ethers.getContractFactory("Store");
     const StoreFactory = await ethers.getContractFactory("StoreFactory");
