@@ -1,6 +1,7 @@
 import { resolve, Resolver } from "dns";
 import { ContractTransaction } from "ethers";
 import { ethers } from "hardhat";
+import { Bytecode } from "hardhat/internal/hardhat-network/stack-traces/model";
 
 describe("StoreProxy", function () {
 
@@ -49,21 +50,40 @@ describe("StoreProxy", function () {
     const sf = await StoreFactory.deploy(storeMaster.address);
     await sf.deployed();
 
-    let tx = await sf.clone([]);
+    let tx = await sf.clone();
     let gasUsed = await getGasUsed(tx);
     console.log(gasUsed);
 
-    const proxyAddress = await sf.storeAddress(0);
-    const storeProxy = await Store.attach(proxyAddress);
+    let proxyAddress = await sf.storeAddress(0);
+    console.log("proxy address: ", proxyAddress)
+    tx = await sf.clone();
 
-    tx = await storeProxy.initialize("proxy");
+    let storeProxy1 = await Store.attach(proxyAddress);
+
+    tx = await storeProxy1.initialize("proxy1");
+    await tx.wait();
+
+    proxyAddress = await sf.storeAddress(1);
+    console.log("proxy address: ", proxyAddress)
+
+
+    let storeProxy2 = await Store.attach(proxyAddress);
+    await tx.wait();
+
+    tx = await storeProxy1.initialize("proxy1");
+    await tx.wait();
+
+    tx = await storeProxy2.initialize("proxy2");
     await tx.wait();
 
     tx = await storeMaster.initialize("master");
     await tx.wait();
 
-    const proxyVal = await storeProxy.value();
-    console.log(proxyVal)
+    const proxyVal1 = await storeProxy1.value();
+    console.log(proxyVal1)
+
+    const proxyVal2 = await storeProxy2.value();
+    console.log(proxyVal2)
 
     const masterVal = await storeMaster.value();
     console.log(masterVal)

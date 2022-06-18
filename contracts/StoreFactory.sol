@@ -81,8 +81,8 @@ contract StoreFactory {
         ub = new UpgradeableBeacon(_impl);
     }
 
-    function clone(bytes memory _salt) public returns (address) {
-        address proxyAddress = address(new BeaconProxy(address(ub), _salt));
+    function clone() public {
+        address proxyAddress = address(new BeaconProxy(address(ub), ""));
         storeAddress[id] = proxyAddress;
         id++;
     }
